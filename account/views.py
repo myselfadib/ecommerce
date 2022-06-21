@@ -6,12 +6,13 @@ from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from requests import request
 
 #from orders.views import user_orders
 
 from .forms import RegistrationForm
 from .models import UserBase
-#from .tokens import account_activation_token
+from .tokens import account_activation_token
 
 
 @login_required
@@ -36,7 +37,7 @@ def account_register(request):
                 'user': user,
                 'domain': current_site.domain,
                 'uid':urlsafe_base64_encode(force_bytes(user.pk)),
-               # 'token': account_activation_token.make_token(user),
+                'token': account_activation_token.make_token(user),
             })
             user.email_user(subject=subject,message=message)
     else:
@@ -45,4 +46,21 @@ def account_register(request):
             
 
 
+def account_activate(self, uidb64,token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = UserBase.objects.get(pk = uid)
+    except(TypeError, ValueError, OverflowError, user.DoesNotExist):
+        user = None
+    if user is not None and account_activation_token.check_token(user,token):
+        user.is_active = True
+        user.save()    
+        login(request,user)
+        return redirect('account:dashboard')
+    else:
+        return render(request, 'account/registration/activation_invalid.html')    
+    
 
+def dashboard(self):
+    return
+    
