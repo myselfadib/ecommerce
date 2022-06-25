@@ -12,11 +12,18 @@ from requests import request
 
 from .forms import RegistrationForm
 from .models import UserBase
-from .tokens import account_activation_token
-
+from .token import account_activation_token
+# Create your views here.
 
 @login_required
-# Create your views here.
+def dashboard(request):
+    #orders = user_orders(request)
+    return render(request,
+                  'account/user/dashboard.html')
+    
+
+
+
 
 def account_register(request):
    # if request.user.is_authenticated:
@@ -40,6 +47,7 @@ def account_register(request):
                 'token': account_activation_token.make_token(user),
             })
             user.email_user(subject=subject,message=message)
+            return HttpResponse('registered succesfully and activation sent')
     else:
         registerForm = RegistrationForm()
     return render(request,'account/registration/register.html', {'form':registerForm})
