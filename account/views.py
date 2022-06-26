@@ -69,6 +69,5 @@ def account_activate(self, uidb64,token):
         return render(request, 'account/registration/activation_invalid.html')    
     
 
-def dashboard(self):
-    return
+
     
